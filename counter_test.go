@@ -1,7 +1,7 @@
 package num_test
 
 import (
-	"github.com/magiconair/properties/assert"
+	"github.com/stretchr/testify/assert"
 	"num"
 	"sync"
 	"testing"
