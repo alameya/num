@@ -1,7 +1,9 @@
-package num
+package num_test
 
 import (
 	"github.com/magiconair/properties/assert"
+	"num"
+	"sync"
 	"testing"
 )
 
@@ -54,9 +56,9 @@ func TestCounter_Value_MaxIncrements(t *testing.T) {
 	}
 
 	processTestCases(t, testCase{
-		maxValue:        MaxUint(),
-		incrementsCount: MaxUint(),
-		expectedValue:   MaxUint(),
+		maxValue:        num.MaxUint(),
+		incrementsCount: num.MaxUint(),
+		expectedValue:   num.MaxUint(),
 	})
 }
 
@@ -64,19 +66,19 @@ func TestCounter_Value(t *testing.T) {
 	t.Parallel()
 	testTable := []testCase{
 		{
-			maxValue:        MaxUint(),
+			maxValue:        num.MaxUint(),
 			incrementsCount: 0,
 			expectedValue:   0,
 		},
 		{
-			maxValue:        MaxUint(),
+			maxValue:        num.MaxUint(),
 			incrementsCount: 2,
 			expectedValue:   2,
 		},
 		{
-			maxValue:        MaxUint(),
-			incrementsCount: 14,
-			expectedValue:   14,
+			maxValue:        num.MaxUint(),
+			incrementsCount: 10000,
+			expectedValue:   10000,
 		},
 
 	}
@@ -84,13 +86,52 @@ func TestCounter_Value(t *testing.T) {
 	processTestCases(t, testTable...)
 }
 
+func TestCounter_Max_AfterIncrement(t *testing.T) {
+	t.Parallel()
+	testTable := []testCase{
+		{
+			maxValue:        5,
+			incrementsCount: 10,
+			expectedValue:   0,
+		},
+		{
+			maxValue:        10,
+			incrementsCount: 10,
+			expectedValue:   0,
+		},
+		{
+			maxValue:        10,
+			incrementsCount: 9,
+			expectedValue:   9,
+		},
+
+	}
+
+	for _, testObj := range testTable {
+		counter := num.NewCounter()
+		for i := uint(0); testObj.incrementsCount != i; i++ {
+			counter.Increment()
+		}
+
+		counter.Max(testObj.maxValue)
+		assert.Equal(t, counter.Value(), testObj.expectedValue)
+	}
+}
+
 func processTestCases(t *testing.T, testCases ...testCase) {
 	t.Helper()
 	for _, testObj := range testCases {
-		counter := NewCounter()
+		var wg sync.WaitGroup
+		counter := num.NewCounter()
 		counter.Max(testObj.maxValue)
 		for i := uint(0); testObj.incrementsCount != i; i++ {
-			counter.Increment()
+			wg.Add(1)
+			go func(c *num.Counter) {
+				c.Increment()
+				wg.Done()
+			}(counter)
+
+			wg.Wait()
 		}
 
 		assert.Equal(t, counter.Value(), testObj.expectedValue)
