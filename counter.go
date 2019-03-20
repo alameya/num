@@ -35,10 +35,6 @@ func (c *Counter) Max(maxValue uint) {
 	c.mx.Lock()
 	defer c.mx.Unlock()
 
-	if maxValue > MaxUint() {
-		maxValue = MaxUint()
-	}
-
 	c.max = maxValue
 
 	if c.value >= c.max {
