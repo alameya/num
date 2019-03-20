@@ -5,18 +5,10 @@ import (
 	"math/bits"
 )
 
-func MaxInt() int {
-	if bits.UintSize == 32 {
-		return math.MaxInt32
+func MaxUint() uint {
+	if bits.UintSize == 64 {
+		return  math.MaxUint64
 	}
 
-	return  math.MaxInt64
-}
-
-func MinInt() int {
-	if bits.UintSize == 32 {
-		return math.MinInt32
-	}
-
-	return math.MinInt64
+	return math.MaxUint32
 }

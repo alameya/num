@@ -6,25 +6,27 @@ import (
 )
 
 type testCase struct {
-	maxValue        int
-	incrementsCount int
-	expectedValue   int
+	maxValue        uint
+	incrementsCount uint
+	expectedValue   uint
 }
 
 func TestCounter_Max_Abnormal(t *testing.T) {
 	t.Parallel()
-	maxValues := []int{MinInt(), -1000, -1, 0, 1}
-
-	for _, max := range maxValues {
-		counter := NewCounter()
-		assert.Equal(t, counter.Value(), 0)
-
-		counter.Max(max)
-		assert.Equal(t, counter.Value(), 0)
-
-		counter.Increment()
-		assert.Equal(t, counter.Value(), 0)
+	testTable := []testCase{
+		{
+			maxValue:        0,
+			incrementsCount: 1,
+			expectedValue:   0,
+		},
+		{
+			maxValue:        1,
+			incrementsCount: 1,
+			expectedValue:   0,
+		},
 	}
+
+	processTestCases(t, testTable...)
 }
 
 func TestCounter_Max(t *testing.T) {
@@ -52,9 +54,9 @@ func TestCounter_Value_MaxIncrements(t *testing.T) {
 	}
 
 	processTestCases(t, testCase{
-		maxValue: MaxInt(),
-		incrementsCount: MaxInt(),
-		expectedValue: MaxInt(),
+		maxValue:        MaxUint(),
+		incrementsCount: MaxUint(),
+		expectedValue:   MaxUint(),
 	})
 }
 
@@ -62,17 +64,17 @@ func TestCounter_Value(t *testing.T) {
 	t.Parallel()
 	testTable := []testCase{
 		{
-			maxValue:        MaxInt(),
+			maxValue:        MaxUint(),
 			incrementsCount: 0,
 			expectedValue:   0,
 		},
 		{
-			maxValue:        MaxInt(),
+			maxValue:        MaxUint(),
 			incrementsCount: 2,
 			expectedValue:   2,
 		},
 		{
-			maxValue:        MaxInt(),
+			maxValue:        MaxUint(),
 			incrementsCount: 14,
 			expectedValue:   14,
 		},
@@ -87,7 +89,7 @@ func processTestCases(t *testing.T, testCases ...testCase) {
 	for _, testObj := range testCases {
 		counter := NewCounter()
 		counter.Max(testObj.maxValue)
-		for i := 0; testObj.incrementsCount != i; i++ {
+		for i := uint(0); testObj.incrementsCount != i; i++ {
 			counter.Increment()
 		}
 
